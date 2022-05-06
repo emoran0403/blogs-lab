@@ -6,96 +6,76 @@ import { useEffect, useState } from "react";
 import Fetcher from "../Client_Utils/Fetcher";
 
 const Authors = () => {
-  const [authorsArray, setAuthorsArray] = useState<Types.Author[]>([]);
+    const [authorsArray, setAuthorsArray] = useState<Types.Author[]>([]);
 
-  const nav = useNavigate();
+    const nav = useNavigate();
 
-  const getAllAuthors = () => {
-    Fetcher.GET("/api/users")
-      .then((data) => {
-        setAuthorsArray(data); // set the data to state if no errors
-      })
-      .catch((error) => {
-        console.log(`Get All Authors Error...\n`);
-        console.error(error);
-      });
+    const getAllAuthors = () => {
+        Fetcher.GET("/api/users")
+            .then(data => {
+                setAuthorsArray(data); // set the data to state if no errors
+            })
+            .catch(error => {
+                console.log(`Get All Authors Error...\n`);
+                console.error(error);
+            });
 
-    // fetch("/api/users") // GET from "/api/users"
-    //   .then((res) => {
-    //     // then with that response
-    //     res.json().then((data) => {
-    //       // parse as JSON data, then with that data
-    //       if (res.ok) {
-    //         // if there was an OK response
-    //         setAuthorsArray(data); // set the data to state
-    //       } else {
-    //         // if there was not an OK response
-    //         throw new Error(data.message); // throw a new error
-    //       }
-    //     });
-    //   });
-  };
+        // fetch("/api/users") // GET from "/api/users"
+        //   .then((res) => {
+        //     // then with that response
+        //     res.json().then((data) => {
+        //       // parse as JSON data, then with that data
+        //       if (res.ok) {
+        //         // if there was an OK response
+        //         setAuthorsArray(data); // set the data to state
+        //       } else {
+        //         // if there was not an OK response
+        //         throw new Error(data.message); // throw a new error
+        //       }
+        //     });
+        //   });
+    };
 
-  const getSingleAuthor = (author: Types.Author) => {
-    Fetcher.GET(`/api/authors/${author.id}`)
-      .then((data) => {
-        setAuthorsArray(data); // set the data to state if no errors
-      })
-      .catch((error) => {
-        console.log(`Get Single Author Error...\n`);
-        console.error(error);
-      });
-    nav(`/authors/${author.id}`, { state: { ...author } }); // nav to author details with the selected author data
+    const getSingleAuthor = (author: Types.Author) => {
+        Fetcher.GET(`/api/authors/${author.id}`)
+            .then(data => {
+                setAuthorsArray(data); // set the data to state if no errors
+            })
+            .catch(error => {
+                console.log(`Get Single Author Error...\n`);
+                console.error(error);
+            });
+        nav(`/authors/${author.id}`, { state: { ...author } }); // nav to author details with the selected author data
+    };
 
-    // fetch(`/api/authors/${author.id}`) // GET from "/api/authors"
-    //   .then((res) => {
-    //     // then with that response
-    //     res.json().then((data) => {
-    //       // parse as JSON data, then with that data
-    //       if (res.ok) {
-    //         // if there was an OK response
-    //         setAuthorsArray(data); // set the data to state
-    //       } else {
-    //         // if there was not an OK response
-    //         throw new Error(data.message); // throw a new error
-    //       }
-    //     });
-    //   })
-    //   .catch((error) => {
-    //     console.log(`Get Single Author Error...\n`);
-    //     console.error(error);
-    //   });
-    // nav(`/authors/${author.id}`, { state: { ...author } });
-  };
+    useEffect(() => {
+        getAllAuthors();
+    }, []);
 
-  useEffect(() => {
-    getAllAuthors();
-  }, []);
+    return (
+        <>
+            <div className="d-flex flex-wrap justify-content-around">
+                {authorsArray.map(author => (
+                    <div key={`author-${author.id}`} className="card col-md-2">
+                        <div className="card-body">
+                            <h5 className="card-title">{author.authorname.toLocaleUpperCase()}</h5>
 
-  return (
-    <>
-      <div className="d-flex flex-wrap justify-content-around">
-        {authorsArray.map((author) => (
-          <div key={`author-${author.id}`} className="card col-md-2">
-            <div className="card-body">
-              <h5 className="card-title">{author.authorname.toLocaleUpperCase()}</h5>
+                            <hr></hr>
 
-              <hr></hr>
+                            {author.authorbio?.length < 50 && <div className="card-text">{author.authorbio}</div>}
+                            {author.authorbio?.length > 50 && <div className="card-text">{author.authorbio.slice(0, 50)}...</div>}
 
-              {author.authorbio?.length < 50 && <div className="card-text">{author.authorbio}</div>}
-              {author.authorbio?.length > 50 && <div className="card-text">{author.authorbio.slice(0, 50)}...</div>}
+                            <hr></hr>
 
-              <hr></hr>
-
-              <Button variant="contained" className="btn btn-warning btn-sm" onClick={() => getSingleAuthor(author)}>
-                View this Author
-              </Button>
+                            <Button variant="contained" className="btn btn-warning btn-sm" onClick={() => getSingleAuthor(author)}>
+                                View this Author
+                            </Button>
+                        </div>
+                    </div>
+                ))}
             </div>
-          </div>
-        ))}
-      </div>
-    </>
-  );
+        </>
+    );
 };
 
 export default Authors;
