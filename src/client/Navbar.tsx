@@ -7,75 +7,71 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Fetcher, { TOKEN_KEY } from "./Client_Utils/Fetcher";
 
 const Navbar = () => {
-  const [loggedIn, setloggedIn] = useState<boolean>(false);
-  const nav = useNavigate();
-  const loc = useLocation();
+    const [loggedIn, setloggedIn] = useState<boolean>(false);
+    const nav = useNavigate();
+    const loc = useLocation();
 
-  const PublicPages = [`/`, `/donate`];
+    const PublicPages = [`/`, `/donate`, "/newauthor"];
 
-  useEffect(() => {
-    //this will fire every time the user navigates to a new path, checking if they have a valid token
-    // console.log(`You are on ${loc.pathname}`);
+    useEffect(() => {
+        // this will fire every time the user navigates to a new path, checking if they have a valid token
+        if (!PublicPages.includes(loc.pathname)) {
+            console.log(`This is a private page check for ${loc.pathname}`);
+            Fetcher.POST("/auth/checkToken", null)
+                .then(data => {
+                    if (data.message === "valid token!") setloggedIn(true);
+                })
+                .catch(error => {
+                    setloggedIn(false);
+                    console.log(`are we really here?`);
+                    console.log(`error...\n`);
+                    console.error(error);
+                    nav("/"); // Navigate user to login page if error occurs
+                });
+        }
+    }, [loc.pathname]);
 
-    if (!PublicPages.includes(loc.pathname)) {
-      Fetcher.GET("/auth/checkToken")
-        .then((data) => {
-          console.log(data);
-          if (data.token) setloggedIn(true);
-          // console.log(`data will be below`);
-        })
-        .catch((error) => {
-          // setloggedIn(false);
-          console.log(`are we really here?`);
-          console.log(`error...\n`);
-          console.error(error);
-          // nav("/"); // Navigate user to login page if error occurs
-        });
-    }
-  }, [loc.pathname]);
-
-  return (
-    <>
-      {loggedIn && (
-        <div className="mb-4">
-          <Link to="/newblog">
-            <Button variant="contained" className="btn btn-primary mx-1">
-              New Blog
-            </Button>
-          </Link>
-          <Link to="/blogs">
-            <Button variant="contained" className="btn btn-primary mx-1">
-              Blogs
-            </Button>
-          </Link>
-          <Link to="/users">
-            <Button variant="contained" className="btn btn-primary mx-1">
-              Authors
-            </Button>
-          </Link>
-          <Link to="/donate">
-            <Button variant="contained" className="btn btn-primary mx-1">
-              Donate
-            </Button>
-          </Link>
-          <Link to="/">
-            <Button
-              variant="contained"
-              onClick={() => {
-                const secretTrackz2 = new Audio(`../okbye.mp3`);
-                secretTrackz2.play();
-                localStorage.removeItem(TOKEN_KEY); // clear any data (our token) in local storage
-                nav("/");
-              }}
-              className="btn btn-primary mx-1"
-            >
-              Logout
-            </Button>
-          </Link>
-        </div>
-      )}
-    </>
-  );
+    return (
+        <>
+            {loggedIn && (
+                <div className="mb-4">
+                    <Link to="/newblog">
+                        <Button variant="contained" className="btn btn-primary mx-1">
+                            New Blog
+                        </Button>
+                    </Link>
+                    <Link to="/blogs">
+                        <Button variant="contained" className="btn btn-primary mx-1">
+                            Blogs
+                        </Button>
+                    </Link>
+                    <Link to="/users">
+                        <Button variant="contained" className="btn btn-primary mx-1">
+                            Authors
+                        </Button>
+                    </Link>
+                    <Link to="/donate">
+                        <Button variant="contained" className="btn btn-primary mx-1">
+                            Donate
+                        </Button>
+                    </Link>
+                    <Link to="/">
+                        <Button
+                            variant="contained"
+                            onClick={() => {
+                                const secretTrackz2 = new Audio(`../okbye.mp3`);
+                                secretTrackz2.play();
+                                localStorage.removeItem(TOKEN_KEY); // clear any data (our token) in local storage
+                                nav("/");
+                            }}
+                            className="btn btn-primary mx-1">
+                            Logout
+                        </Button>
+                    </Link>
+                </div>
+            )}
+        </>
+    );
 };
 
 export default Navbar;
